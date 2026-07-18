@@ -63,6 +63,7 @@ const resumeSchema = new mongoose.Schema(
         certifications: [certificationSchema],
 
         languages: [languageSchema],
+        
 
         achievements: [
             {
@@ -82,7 +83,7 @@ const resumeSchema = new mongoose.Schema(
 );
 
 
-let Resume = mongoose.model("Resume", ResumeSchema);
+let Resume = mongoose.model("Resume", resumeSchema);
 
 
 module.exports=Resume;

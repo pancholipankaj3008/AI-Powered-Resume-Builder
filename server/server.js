@@ -8,12 +8,17 @@ const ConnectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 const authRouter = require('./routes/authRoutes');
 const profileRouter = require('./routes/profileRoutes');
+const resumeRouter = require('./routes/resumeRoutes');
+const aiRouter = require('./routes/aiRoutes');
 
 let app = express();
 let port = process.env.PORT;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+}));
 app.use(cookieParser());
 
 app.get("/test", (req, res) => {
@@ -22,6 +27,9 @@ app.get("/test", (req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/user", profileRouter)
+app.use("/resume", resumeRouter)
+
+app.use("/ai", aiRouter);
 
 
 
