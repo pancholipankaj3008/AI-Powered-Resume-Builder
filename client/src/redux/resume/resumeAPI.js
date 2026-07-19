@@ -32,3 +32,14 @@ export const DeleteResumeAPI = async (id) => {
     );
     return response.data;
 };
+
+export const DownloadResumePDF = async (id) => {
+    const response = await axiosInstance.get(
+        `/pdf/download/${id}`,
+        {
+            responseType: "blob",
+        }
+    );
+
+    return response;
+};

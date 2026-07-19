@@ -10,6 +10,7 @@ const authRouter = require('./routes/authRoutes');
 const profileRouter = require('./routes/profileRoutes');
 const resumeRouter = require('./routes/resumeRoutes');
 const aiRouter = require('./routes/aiRoutes');
+const pdfRouter = require('./routes/pdfRoutes');
 
 let app = express();
 let port = process.env.PORT;
@@ -28,6 +29,7 @@ app.get("/test", (req, res) => {
 app.use("/auth", authRouter);
 app.use("/user", profileRouter)
 app.use("/resume", resumeRouter)
+app.use("/pdf", pdfRouter)
 
 app.use("/ai", aiRouter);
 

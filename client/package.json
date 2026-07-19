@@ -16,11 +16,13 @@
     "axios": "^1.18.1",
     "html2canvas-pro": "^2.2.4",
     "jspdf": "^4.2.1",
+    "lucide-react": "^1.25.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hot-toast": "^2.6.0",
     "react-redux": "^9.3.0",
     "react-router-dom": "^7.18.1",
+    "styled-components": "^6.4.4",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {

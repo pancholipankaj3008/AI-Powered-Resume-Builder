@@ -51,7 +51,10 @@ export const UpdatePassword = createAsyncThunk(
 );
 
 const initialState = {
-    loading: false,
+    // Wait for the initial cookie-based profile check before evaluating routes.
+    // Without this, a direct protected URL briefly redirects to /login, and
+    // PublicRoute then redirects the authenticated user to /dashboard.
+    loading: true,
     success: false,
     error: null,
     user: null,

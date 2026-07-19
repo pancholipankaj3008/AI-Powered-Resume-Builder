@@ -199,26 +199,26 @@ const ResumeBuilder = () => {
 
     const handleCreateResume = async () => {
 
-    const resumeData = {
-        ...formData,
-        template: selectedTemplate,
+        const resumeData = {
+            ...formData,
+            template: selectedTemplate,
+        };
+
+        const result = await dispatch(CreateResume(resumeData));
+
+        if (CreateResume.fulfilled.match(result)) {
+
+            toast.success("Resume created successfully!");
+
+            navigate(`/preview/${result.payload.resume._id}`);
+
+        } else {
+
+            toast.error(result.payload || "Failed to create resume.");
+
+        }
+
     };
-
-    const result = await dispatch(CreateResume(resumeData));
-
-    if (CreateResume.fulfilled.match(result)) {
-
-        toast.success("Resume created successfully!");
-
-        navigate(`/preview/${result.payload.resume._id}`);
-
-    } else {
-
-        toast.error(result.payload || "Failed to create resume.");
-
-    }
-
-};
 
     const renderStep = () => {
 
@@ -346,12 +346,6 @@ const ResumeBuilder = () => {
                     />
                 );
 
-                <button
-    disabled={loading}
->
-    {loading ? "Creating..." : "Create Resume"}
-</button>
-
             default:
                 return null;
 
@@ -361,26 +355,35 @@ const ResumeBuilder = () => {
 
     return (
 
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-[#07080a] text-[#e4e6eb] font-sans relative overflow-hidden">
 
-            <div className="max-w-5xl mx-auto py-10 px-6">
+            {/* Ambient gradient backdrop */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                <div className="absolute -top-40 -right-40 w-[36rem] h-[36rem] bg-[#fbbf24] rounded-full opacity-[0.06] blur-[150px]"></div>
+                <div className="absolute -bottom-40 -left-40 w-[32rem] h-[32rem] bg-[#d97706] rounded-full opacity-[0.07] blur-[150px]"></div>
+            </div>
+
+            {/* Tech grid overlay */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(circle_at_center,#000_60%,transparent_100%)] opacity-70 pointer-events-none z-0"></div>
+
+            <div className="max-w-5xl mx-auto py-10 px-6 relative z-10">
 
                 <div className="mb-8">
 
-                    <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
+                    <div className="flex justify-between items-center text-sm text-gray-400 mb-2 font-medium">
                         <span>
                             Step {steps.indexOf(currentStep) + 1} of {steps.length}
                         </span>
 
-                        <span>
+                        <span className="text-[#fbbf24] font-bold">
                             {Math.round(progress)}%
                         </span>
                     </div>
 
-                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/5">
 
                         <div
-                            className="h-full bg-blue-600 transition-all duration-300"
+                            className="h-full bg-gradient-to-r from-[#fde68a] via-[#fbbf24] to-[#d97706] transition-all duration-300 shadow-[0_0_12px_rgba(251,191,36,0.5)]"
                             style={{
                                 width: `${progress}%`,
                             }}
@@ -390,8 +393,11 @@ const ResumeBuilder = () => {
 
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                    {renderStep()}
+                <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-2xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#fbbf24]/[0.03] via-transparent to-transparent pointer-events-none"></div>
+                    <div className="relative z-10">
+                        {renderStep()}
+                    </div>
                 </div>
 
             </div>

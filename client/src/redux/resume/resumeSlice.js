@@ -5,6 +5,7 @@ import {
     GetResumeByIdAPI,
     UpdateResumeAPI,
     DeleteResumeAPI,
+    DownloadResumePDF,
 } from "./resumeAPI";
 
 // Create Resume
@@ -74,6 +75,20 @@ export const DeleteResume = createAsyncThunk(
             return thunkAPI.rejectWithValue(
                 error.response?.data?.message || "Failed to delete resume"
             );
+        }
+    }
+);
+
+
+export const DownloadResume = createAsyncThunk(
+    "resume/download",
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await DownloadResumePDF(id);
+
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data);
         }
     }
 );
@@ -188,7 +203,20 @@ const resumeSlice = createSlice({
         .addCase(DeleteResume.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload;
-        });
+        })
+
+        // Download Resume PDF
+.addCase(DownloadResume.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+})
+.addCase(DownloadResume.fulfilled, (state) => {
+    state.loading = false;
+})
+.addCase(DownloadResume.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+});
 
     },
 

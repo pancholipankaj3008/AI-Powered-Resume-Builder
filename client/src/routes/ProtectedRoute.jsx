@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Loader from "../components/common/Loader";
 
 const ProtectedRoute = ({ children }) => {
 
@@ -8,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
     );
 
     if (loading) {
-        return <h2 className="text-center mt-10">Loading...</h2>;
+        return <Loader text="Loading Profile..." />;
     }
 
     if (!isAuthenticated) {
