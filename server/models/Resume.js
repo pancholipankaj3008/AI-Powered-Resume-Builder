@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
-const personalInfoSchema = require("./schemas/personalInfoSchema");
-const educationSchema = require("./schemas/educationSchema");
-const experienceSchema = require("./schemas/experienceSchema");
-const projectSchema = require("./schemas/projectSchema");
-const certificationSchema = require("./schemas/certificationSchema");
-const languageSchema = require("./schemas/languageSchema");
+const personalInfoSchema = require("./Schemas/personalInfoSchema");
+const educationSchema = require("./Schemas/educationSchema");
+const experienceSchema = require("./Schemas/experienceSchema");
+const projectSchema = require("./Schemas/projectSchema");
+const certificationSchema = require("./Schemas/certificationSchema");
+const languageSchema = require("./Schemas/languageSchema");
 
 const resumeSchema = new mongoose.Schema(
     {
