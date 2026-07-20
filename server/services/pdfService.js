@@ -13,7 +13,7 @@ const generateResumePDF = async (resumeId, cookies = {}) => {
         .map((name) => ({
             name,
             value: cookies[name],
-            url: "http://localhost:5173",
+            url: process.env.CLIENT_URL,
             httpOnly: true,
         }));
 
@@ -22,7 +22,7 @@ const generateResumePDF = async (resumeId, cookies = {}) => {
     }
 
     await page.goto(
-        `http://localhost:5173/preview/${resumeId}?pdf=true`,
+        `${process.env.CLIENT_URL}/preview/${resumeId}?pdf=true`,
         {
             waitUntil: "networkidle0",
         }
