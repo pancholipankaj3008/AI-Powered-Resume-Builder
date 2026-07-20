@@ -3,8 +3,12 @@ const puppeteer = require("puppeteer");
 const generateResumePDF = async (resumeId, cookies = {}) => {
 
     const browser = await puppeteer.launch({
-        headless: true,
-    });
+    headless: true,
+    args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+    ],
+});
 
     const page = await browser.newPage();
 
