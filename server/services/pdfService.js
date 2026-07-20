@@ -2,7 +2,7 @@ const chromium = require("@sparticuz/chromium").default;
 const puppeteer = require("puppeteer-core");
 const fs = require("fs");
 
-const generateResumePDF = async (resumeId, cookies = {}) => {
+const generateResumePDF = async (resumeId, cookies = {}, backendUrl) => {
     let browser;
 
     try {
@@ -58,8 +58,12 @@ const generateResumePDF = async (resumeId, cookies = {}) => {
             .map((name) => ({
                 name,
                 value: cookies[name],
-                url: process.env.CLIENT_URL,
+                // The Vercel page calls the Render API, so this cookie must
+                // be attached to the Render origin, not the Vercel origin.
+                url: backendUrl,
                 httpOnly: true,
+                secure: backendUrl.startsWith("https://"),
+                sameSite: "None",
             }));
 
         if (authCookies.length) {
@@ -69,7 +73,7 @@ const generateResumePDF = async (resumeId, cookies = {}) => {
             console.log("⚠ No cookies found");
         }
 
-        const previewUrl = `${process.env.CLIENT_URL}/preview/${resumeId}?pdf=true`;
+        const previewUrl = `${process.env.CLIENT_URL}/pdf-preview/${resumeId}`;
 
         console.log("Opening:", previewUrl);
 
@@ -79,6 +83,11 @@ const generateResumePDF = async (resumeId, cookies = {}) => {
         });
 
         console.log("Goto Status:", response?.status());
+
+        // Do not produce a PDF until the authenticated resume is actually
+        // rendered. This prevents a loader, error screen, or login page from
+        // being captured as a PDF.
+        await page.waitForSelector("#resume-pdf", { timeout: 15000 });
 
         await page.emulateMediaType("screen");
 

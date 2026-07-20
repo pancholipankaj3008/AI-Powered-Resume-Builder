@@ -59,13 +59,13 @@ const AppRoutes = () => {
                 />
 
                 <Route
-    path="/builder"
-    element={
-        <ProtectedRoute>
-            <ResumeBuilder />
-        </ProtectedRoute>
-    }
-/>
+                    path="/builder"
+                    element={
+                        <ProtectedRoute>
+                            <ResumeBuilder />
+                        </ProtectedRoute>
+                    }
+                />
 
                 <Route
                     path="/profile"
@@ -83,6 +83,11 @@ const AppRoutes = () => {
                             <ResumeEditor />
                         </ProtectedRoute>
                     }
+                />
+
+                <Route
+                    path="/pdf-preview/:id"
+                    element={<ResumePreview />}
                 />
 
                 <Route

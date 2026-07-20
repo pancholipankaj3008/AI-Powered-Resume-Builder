@@ -2,9 +2,11 @@ const { generateResumePDF } = require("../services/pdfService");
 
 const downloadResumePDF = async (req, res) => {
     try {
-        // Puppeteer runs in a separate browser context, so forward the
-        // authenticated request cookies when rendering the protected preview.
-        const pdf = await generateResumePDF(req.params.id, req.cookies);
+        // Puppeteer has its own browser context. Give its API requests the
+        // cookies from the authenticated download request.
+        const backendUrl =
+            process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+        const pdf = await generateResumePDF(req.params.id, req.cookies, backendUrl);
 
         res.set({
             "Content-Type": "application/pdf",

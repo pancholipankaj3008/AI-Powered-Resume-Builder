@@ -15,6 +15,10 @@ const pdfRouter = require('./routes/pdfRoutes');
 let app = express();
 let port = process.env.PORT;
 
+// Render terminates HTTPS before forwarding the request to Express. This
+// preserves the original https protocol when creating the PDF browser URL.
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(cors({
     origin:process.env.CLIENT_URL,

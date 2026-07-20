@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useState } from "react";
 import { Link, useParams, } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { templates as templateData } from "../data/templateData";
@@ -44,20 +45,27 @@ import { useRef } from "react";
 import Loader from "../components/common/Loader";
 import axiosInstance from "../services/axiosInstance";
 
-const isPdf = new URLSearchParams(window.location.search).get("pdf") === "true";
-const ResumePreview = () => {
+    const ResumePreview = () => {
+    const isPdf = window.location.pathname.startsWith("/pdf-preview/");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { id } = useParams();
     const resumeRef = useRef();
+    const [resume, setResume] = useState(null);
 
     const { selectedResume, loading } = useSelector(
         (state) => state.resume
     );
 
     useEffect(() => {
+    if (isPdf) {
+        axiosInstance
+            .get(`/resume/get-resume/${id}`)
+            .then((res) => setResume(res.data.resume));
+    } else {
         dispatch(GetResumeById(id));
-    }, [dispatch, id]);
+    }
+}, [dispatch, id]);
 
     const templates = {
         "ats-professional": ATSProfessional,
@@ -112,38 +120,38 @@ const ResumePreview = () => {
     };
 
     const downloadPDF = async () => {
-    try {
-        console.log("Download started");
+        try {
+            console.log("Download started");
 
-        const response = await axiosInstance.get(
-            `/pdf/download/${selectedResume._id}`,
-            {
-                responseType: "blob",
-            }
-        );
+            const response = await axiosInstance.get(
+                `/pdf/download/${selectedResume._id}`,
+                {
+                    responseType: "blob",
+                }
+            );
 
-        console.log("Response:", response);
-        console.log("Status:", response.status);
-        console.log("Blob size:", response.data.size);
+            console.log("Response:", response);
+            console.log("Status:", response.status);
+            console.log("Blob size:", response.data.size);
 
-        const url = window.URL.createObjectURL(response.data);
+            const url = window.URL.createObjectURL(response.data);
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${selectedResume.title || "resume"}.pdf`;
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${selectedResume.title || "resume"}.pdf`;
 
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
 
-        window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(url);
 
-        console.log("Download finished");
-    } catch (error) {
-        console.error("PDF download failed:", error);
-        console.error(error.response);
-    }
-};
+            console.log("Download finished");
+        } catch (error) {
+            console.error("PDF download failed:", error);
+            console.error(error.response);
+        }
+    };
 
     // Shared page shell (background + ambient glow) for loading / empty / main states
     const PageShell = ({ children }) => (
@@ -158,11 +166,13 @@ const ResumePreview = () => {
         </div>
     );
 
-    if (loading) {
+    if ((!isPdf && loading) || (isPdf && !resume)) {
         return <Loader text="Loading your resume..." />;
     }
 
-    if (!selectedResume) {
+    const activeResume = isPdf ? resume : selectedResume;
+
+    if (!activeResume) {
         return (
             <PageShell>
                 <div className="flex flex-col justify-center items-center h-screen gap-4 px-4 text-center">
@@ -183,18 +193,19 @@ const ResumePreview = () => {
     }
 
     const Template =
-        templates[selectedResume.template] || ATSProfessional;
+        templates[activeResume.template] || ATSProfessional;
 
     if (isPdf) {
         return (
             <div
+                id="resume-pdf"
                 style={{
                     background: "#fff",
                     width: "794px",
                     margin: "0 auto",
                 }}
             >
-                <Template resume={selectedResume} />
+                <Template resume={activeResume} />
             </div>
         );
     }
