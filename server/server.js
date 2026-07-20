@@ -17,7 +17,7 @@ let port = process.env.PORT;
 
 app.use(express.json());
 app.use(cors({
-    origin:"https://ai-powered-resume-builder-three.vercel.app",
+    origin:process.env.CLIENT_URL,
     credentials:true
 }));
 app.use(cookieParser());
