@@ -12,6 +12,9 @@ import {
     Trash2,
     Download,
     FileX2,
+    Check,
+    LoaderCircle,
+    X,
 } from "lucide-react";
 
 import {
@@ -52,6 +55,7 @@ import axiosInstance from "../services/axiosInstance";
     const { id } = useParams();
     const resumeRef = useRef();
     const [resume, setResume] = useState(null);
+    const [downloadStatus, setDownloadStatus] = useState("idle");
 
     const { selectedResume, loading } = useSelector(
         (state) => state.resume
@@ -120,6 +124,10 @@ import axiosInstance from "../services/axiosInstance";
     };
 
     const downloadPDF = async () => {
+        if (downloadStatus === "loading") return;
+
+        setDownloadStatus("loading");
+
         try {
             console.log("Download started");
 
@@ -147,9 +155,11 @@ import axiosInstance from "../services/axiosInstance";
             window.URL.revokeObjectURL(url);
 
             console.log("Download finished");
+            setDownloadStatus("success");
         } catch (error) {
             console.error("PDF download failed:", error);
             console.error(error.response);
+            setDownloadStatus("error");
         }
     };
 
@@ -287,10 +297,31 @@ import axiosInstance from "../services/axiosInstance";
 
                             <button
                                 onClick={downloadPDF}
-                                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#fde68a] via-[#fbbf24] to-[#d97706] text-[#0b0c0e] font-black px-4 py-2.5 rounded-xl text-sm shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_30px_rgba(251,191,36,0.3)] transition-all duration-300 hover:scale-[1.01] active:scale-[0.99]"
+                                disabled={downloadStatus === "loading"}
+                                className={`inline-flex items-center gap-2 font-black px-4 py-2.5 rounded-xl text-sm transition-all duration-300 ${
+                                    downloadStatus === "success"
+                                        ? "bg-emerald-500 text-white"
+                                        : downloadStatus === "error"
+                                            ? "bg-red-500 text-white"
+                                            : "bg-gradient-to-r from-[#fde68a] via-[#fbbf24] to-[#d97706] text-[#0b0c0e] shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:shadow-[0_0_30px_rgba(251,191,36,0.3)] hover:scale-[1.01] active:scale-[0.99]"
+                                } ${downloadStatus === "loading" ? "cursor-wait opacity-80" : ""}`}
                             >
-                                <Download className="w-4 h-4" strokeWidth={2.5} />
-                                Download PDF
+                                {downloadStatus === "loading" ? (
+                                    <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={2.5} />
+                                ) : downloadStatus === "success" ? (
+                                    <Check className="w-4 h-4" strokeWidth={3} />
+                                ) : downloadStatus === "error" ? (
+                                    <X className="w-4 h-4" strokeWidth={3} />
+                                ) : (
+                                    <Download className="w-4 h-4" strokeWidth={2.5} />
+                                )}
+                                {downloadStatus === "loading"
+                                    ? "Downloading..."
+                                    : downloadStatus === "success"
+                                        ? "Downloaded"
+                                        : downloadStatus === "error"
+                                            ? "Download failed"
+                                            : "Download PDF"}
                             </button>
 
                         </div>
