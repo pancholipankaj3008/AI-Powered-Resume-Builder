@@ -1,14 +1,21 @@
-const chromium = require("@sparticuz/chromium");
+const chromium = require("@sparticuz/chromium").default;
 const puppeteer = require("puppeteer-core");
+const fs = require("fs");
 
 const generateResumePDF = async (resumeId, cookies = {}) => {
 
+    const executablePath = await chromium.executablePath();
+
+    console.log("Path:", executablePath);
+    console.log("Exists:", fs.existsSync(executablePath));
+
     const browser = await puppeteer.launch({
-        executablePath: await chromium.executablePath(),
-        headless: true,
+        executablePath,
         args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
+        headless: true,
     });
+
+
 
     const page = await browser.newPage();
 
