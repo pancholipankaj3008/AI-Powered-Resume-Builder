@@ -2,12 +2,15 @@ const puppeteer = require("puppeteer");
 
 const generateResumePDF = async (resumeId, cookies = {}) => {
 
+    console.log("Puppeteer executable:", puppeteer.executablePath());
+    
     const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-    ],
+  executablePath: puppeteer.executablePath(),
+  headless: true,
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+  ],
 });
 
     const page = await browser.newPage();
