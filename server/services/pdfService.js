@@ -2,10 +2,12 @@ const puppeteer = require("puppeteer");
 
 const generateResumePDF = async (resumeId, cookies = {}) => {
 
-    console.log("Puppeteer executable:", puppeteer.executablePath());
-    
-    const browser = await puppeteer.launch({
-  executablePath: puppeteer.executablePath(),
+    const executablePath = await puppeteer.executablePath();
+
+console.log("Puppeteer executable:", executablePath);
+
+const browser = await puppeteer.launch({
+  executablePath,
   headless: true,
   args: [
     "--no-sandbox",
