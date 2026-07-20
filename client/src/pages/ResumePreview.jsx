@@ -112,24 +112,38 @@ const ResumePreview = () => {
     };
 
     const downloadPDF = async () => {
-        try {
-            const response = await axiosInstance.get(
-                `/pdf/download/${selectedResume._id}`,
-                { responseType: "blob" }
-            );
+    try {
+        console.log("Download started");
 
-            const url = window.URL.createObjectURL(response.data);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `${selectedResume.title || "resume"}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-        } catch (error) {
-            console.error("PDF download failed:", error);
-        }
-    };
+        const response = await axiosInstance.get(
+            `/pdf/download/${selectedResume._id}`,
+            {
+                responseType: "blob",
+            }
+        );
+
+        console.log("Response:", response);
+        console.log("Status:", response.status);
+        console.log("Blob size:", response.data.size);
+
+        const url = window.URL.createObjectURL(response.data);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${selectedResume.title || "resume"}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+
+        console.log("Download finished");
+    } catch (error) {
+        console.error("PDF download failed:", error);
+        console.error(error.response);
+    }
+};
 
     // Shared page shell (background + ambient glow) for loading / empty / main states
     const PageShell = ({ children }) => (
