@@ -3,64 +3,124 @@ const puppeteer = require("puppeteer-core");
 const fs = require("fs");
 
 const generateResumePDF = async (resumeId, cookies = {}) => {
+    let browser;
 
-    const executablePath = await chromium.executablePath();
+    try {
+        const executablePath = await chromium.executablePath();
 
-    console.log("Path:", executablePath);
-    console.log("Exists:", fs.existsSync(executablePath));
+        console.log("Chromium Path:", executablePath);
+        console.log("Exists:", fs.existsSync(executablePath));
 
-    const browser = await puppeteer.launch({
-        executablePath,
-        args: chromium.args,
-        headless: true,
-    });
+        browser = await puppeteer.launch({
+            executablePath,
+            headless: true,
+            args: [
+                ...chromium.args,
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--single-process",
+            ],
+            defaultViewport: chromium.defaultViewport,
+        });
 
+        console.log("✅ Browser launched");
 
+        const page = await browser.newPage();
 
-    const page = await browser.newPage();
+        page.on("console", (msg) => {
+            console.log("PAGE LOG:", msg.text());
+        });
 
-    const authCookies = ["accessToken", "refreshToken"]
-        .filter((name) => cookies[name])
-        .map((name) => ({
-            name,
-            value: cookies[name],
-            url: process.env.CLIENT_URL,
-            httpOnly: true,
-        }));
+        page.on("pageerror", (err) => {
+            console.error("PAGE ERROR:", err);
+        });
 
-    if (authCookies.length) {
-        await page.setCookie(...authCookies);
-    }
+        page.on("requestfailed", (req) => {
+            console.error(
+                "REQUEST FAILED:",
+                req.url(),
+                req.failure()?.errorText
+            );
+        });
 
-    await page.goto(
-        `${process.env.CLIENT_URL}/preview/${resumeId}?pdf=true`,
-        {
-            waitUntil: "networkidle0",
+        page.on("response", (res) => {
+            if (res.status() >= 400) {
+                console.log("HTTP ERROR:", res.status(), res.url());
+            }
+        });
+
+        console.log("✅ New page created");
+
+        const authCookies = ["accessToken", "refreshToken"]
+            .filter((name) => cookies[name])
+            .map((name) => ({
+                name,
+                value: cookies[name],
+                url: process.env.CLIENT_URL,
+                httpOnly: true,
+            }));
+
+        if (authCookies.length) {
+            await page.setCookie(...authCookies);
+            console.log("✅ Cookies set");
+        } else {
+            console.log("⚠ No cookies found");
         }
-    );
 
-    await page.emulateMediaType("screen");
+        const previewUrl = `${process.env.CLIENT_URL}/preview/${resumeId}?pdf=true`;
 
-    await page.setViewport({
-        width: 794,
-        height: 1123,
-        deviceScaleFactor: 2,
-    });
+        console.log("Opening:", previewUrl);
 
-    const pdf = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        margin: {
-            top: "0mm",
-            right: "0mm",
-            bottom: "0mm",
-            left: "0mm",
-        },
-    });
+        const response = await page.goto(previewUrl, {
+            waitUntil: "networkidle2",
+            timeout: 60000,
+        });
 
-    await browser.close();
+        console.log("Goto Status:", response?.status());
 
-    return pdf;
+        await page.emulateMediaType("screen");
+
+        await page.setViewport({
+            width: 794,
+            height: 1123,
+            deviceScaleFactor: 2,
+        });
+
+        console.log("Generating PDF...");
+
+        const pdf = await page.pdf({
+            format: "A4",
+            printBackground: true,
+            margin: {
+                top: "0mm",
+                right: "0mm",
+                bottom: "0mm",
+                left: "0mm",
+            },
+        });
+
+        console.log("✅ PDF Generated");
+
+        await browser.close();
+
+        console.log("✅ Browser Closed");
+
+        return pdf;
+    } catch (error) {
+        console.error("===== PDF SERVICE ERROR =====");
+        console.error(error);
+        console.error(error.stack);
+
+        if (browser) {
+            try {
+                await browser.close();
+            } catch (_) {}
+        }
+
+        throw error;
+    }
 };
 
 module.exports = {
